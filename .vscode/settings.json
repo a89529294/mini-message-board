@@ -1,0 +1,4 @@
+{
+  "appService.defaultWebAppToDeploy": "undefined/subscriptions/041df023-dda9-44e6-a23e-7ab825e52a17/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/mini-message-board",
+  "appService.deploySubpath": "."
+}

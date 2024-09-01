@@ -1,3 +1,5 @@
+require("dotenv").config();
+const queries = require("./db/queries");
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -6,42 +8,37 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 
-const messages = [
-  {
-    id: crypto.randomUUID(),
-    text: "Hi there!",
-    user: "Amando",
-    added: new Date(),
-  },
-  {
-    id: crypto.randomUUID(),
-    text: "Hello World!",
-    user: "Charles",
-    added: new Date(),
-  },
-];
-
-app.get("/", (req, res) => {
-  res.render("index", { messages });
+app.get("/", async (req, res) => {
+  const messages = await queries.getAllMessages();
+  res.render("index", {
+    messages: messages.map((v) => ({
+      user: v.username,
+      text: v.text,
+      added: v.added,
+      id: v.id,
+    })),
+  });
 });
 
 app.get("/new", (req, res) => {
   res.render("form");
 });
 
-app.post("/new", (req, res) => {
-  messages.push({
-    id: crypto.randomUUID(),
-    text: req.body.text,
-    user: req.body.user,
-    added: new Date(),
-  });
+app.post("/new", async (req, res) => {
+  await queries.addMessage(req.body.user, req.body.text);
   res.redirect("/");
 });
 
-app.get("/messages/:id", (req, res) => {
-  const message = messages.find((message) => message.id === req.params.id);
-  res.render("message", { message });
+app.get("/messages/:id", async (req, res) => {
+  const message = await queries.getMessage(req.params.id);
+  console.log(message);
+  res.render("message", {
+    message: {
+      user: message.username,
+      text: message.text,
+      added: message.added,
+    },
+  });
 });
 
 app.listen(process.env.PORT || 3000, () => {
